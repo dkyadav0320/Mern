@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.5">
+    <title>Transactions Statistics</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <h1>Transactions Statistics</h1>
+    <div>
+        <label for="monthSelect">Select Month:</label>
+        <select id="monthSelect">
+            
+        </select>
+    </div>
+    <div id="statisticsBox">
+        
+
+    </div>
+    <script>
+
+        $(document).ready(function() {
+          
+            function fetchTransactionStatistics(month) {
+                $.ajax({
+                    url: '/statistics', 
+                    type: 'GET',
+                    data: {
+                        month: month 
+                    },
+                    success: function(data) {
+                     
+
+                        $('#statisticsBox').html(`
+                            <p>Total Sales Amount: ${data.totalSaleAmount}</p>
+                            <p>Total Sold Items: ${data.totalSoldItems}</p>
+                            <p>Total Unsold Items: ${data.totalUnsoldItems}</p>
+                        `);
+                    },
+
+                    error: function(xhr, status, error) {
+                        console.error('Errorw while fetching statistics:', error);
+                        $('#statisticsBox').html('<p>Error fetching statistics</p>');
+                    }
+
+                });
+            }
+
+
+
+            for (let i = 1; i <= 12; i++) {
+                $('#monthSelect').append(`<option value="${i}">${getMonthName(i)}</option>`);
+            }
+
+        
+
+            $('#monthSelect').val(3);
+
+           
+            $('#monthSelect').change(function() {
+                const selectedMonth = $(this).val();
+                fetchTransactionStatistics(selectedMonth);
+            });
+
+
+       
+            function getMonthName(monthNumber) {
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                return months[monthNumber - 1];
+            }
+
+      
+
+            fetchTransactionStatistics(3);
+        });
+    </script>
+</body>
+</html>

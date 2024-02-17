@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.5">
+
+    <title>Transactions Bar Chart</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+
+<body>
+    <h1>Transactions Bar Chart</h1>
+    <div>
+        <label for="monthSelect">Select Month:</label>
+        <select id="monthSelect">
+        
+        </select>
+    </div>
+
+    <div>
+        <canvas id="barChart" width="700" height="500"></canvas>
+    </div>
+    <script>
+
+        $(document).ready(function() {
+
+            for (let i = 1; i <= 12; i++) {
+                $('#monthSelect').append(`<option value="${i}">${getMonthName(i)}</option>`);
+            }
+
+     
+
+            $('#monthSelect').val(3);
+
+
+            $('#monthSelect').change(function() {
+                const selectedMonth = $(this).val();
+                fetchBarChartData(selectedMonth);
+            });
+
+     
+
+            function fetchBarChartData(month) {
+                $.ajax({
+                    url: '/bar-chart', 
+                    type: 'GET',
+                    data: {
+                        month: month 
+                    },
+                    success: function(data) {
+                        renderBarChart(data.barChartData);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error while fetching bar chart data:', error);
+                    }
+                });
+            }
+
+           
+            function renderBarChart(data) {
+                const labels = data.map(entry => entry.range);
+                const counts = data.map(entry => entry.count);
+
+                const ctx = document.getElementById('barChart').getContext('2d');
+                const barChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Number of Items',
+                            data: counts,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                            borderColor: 'rgba(54, 162, 235, 1)',
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+
+
+            function getMonthName(monthNumber) {
+                const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+                return months[monthNumber - 1];
+            }
+
+  
+
+            fetchBarChartData(3);
+        });
+    </script>
+</body>
+</html>
